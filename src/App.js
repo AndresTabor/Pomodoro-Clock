@@ -10,12 +10,13 @@ function App() {
   const [sessionTime, setSessionTime] = useState( 25 );
   const [sessionMinutes, setSessionMinutes] = useState( sessionTime );
   const [breakMinutes, setBreakMinutes] = useState( breakTime );
-  const [curretTimer, setCurretTimer] = useState( false );
+  const [curretTimer, setCurretTimer] = useState( true );
   const [seconds, setSeconds] = useState( '0'+ 0 )
   const [timerController, setTimerController] = useState({
-    timer:'',
-    reset:''
+    timer_sec:'',
+    timer_min:''
   })
+  const [timerCount, setTimerCount] = useState( true )
   
   const lengthIncrement = ( currentFocus ) => {
     switch (currentFocus) {
@@ -56,8 +57,9 @@ function App() {
   }
 
   const changeTimer = ( curretTimer ) => {
-    console.log( !curretTimer );
-    setCurretTimer( !curretTimer )
+    setCurretTimer( !curretTimer );
+    pause();
+    initIterval();
   }
 
   useEffect(() => {
@@ -65,7 +67,15 @@ function App() {
     
   }, [])
 
-  const initIterval = () => {
+  const pause = () => {
+    console.log( 'pause' );
+    setTimerCount( true ); 
+    clearInterval( timerController.timer_sec );
+    clearInterval( timerController.timer_min );
+  }
+
+  const initIterval = () => { 
+    setTimerCount( false ); 
     console.log( 'inicio' ); 
     let segundos = 60; 
     let minutos;
@@ -77,6 +87,7 @@ function App() {
         minutos = minutos - 1;
       }      
     }else{
+      console.log('verifico');
       minutos = breakMinutes ;
       console.log(minutos);
       setBreakMinutes( minutos - 1 );
@@ -113,24 +124,25 @@ function App() {
       if ( minutos < 0 ) {
         console.log('reinicio');
         changeTimer( curretTimer );
-        clearInterval( secondsInterval );
-        clearInterval( minutesInterval );
+              
       }     
     },60000)
 
-    setTimerController({ ...timerController,timer:secondsInterval})
+    setTimerController({ timer_min:minutesInterval,timer_sec:secondsInterval})
   }
   
   const reset = () =>{
-    clearInterval(timerController.timer)
+    clearInterval( timerController.timer_sec );
     setBreakTime( 5 );
     setBreakMinutes( 5 );
     setSessionTime( 25 );
     setSessionMinutes( 25 );
     setCurretTimer( true );
-    setTimerController( true )  
-    
+    setTimerController( true );  
+    setSeconds( '0'+ 0 );
   }
+
+  
 
   return (
     <div className="App" id='app'>
@@ -162,7 +174,7 @@ function App() {
             }          
           </label>
           <div id='counter-controls'>
-            <button id='start_stop' className='buttons-length' onClick={()=> initIterval()}><IoPlaySkipForward/></button>
+            <button id='start_stop' className='buttons-length' onClick={timerCount=== true?()=> initIterval():()=>pause()}><IoPlaySkipForward/></button>
             <button id='reset' className='buttons-length' onClick={() => reset()}><GrPowerReset/></button>
           </div>
         </div>
